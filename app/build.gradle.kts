@@ -10,6 +10,14 @@ android {
         versionCode = 1
         versionName = "1.0"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+        // 공모전 심사용: 에뮬레이터에서만 시연 기능(도시 예시 재생, 기록 이어받기 등)을 연다. 실차에서는 숨겨진다.
+        buildConfigField("boolean", "DEMO", "true")
+    }
+    buildTypes {
+        release {
+            // 심사 에뮬레이터에 바로 설치할 수 있도록 디버그 키로 서명한다(스토어 배포용 키 아님).
+            signingConfig = signingConfigs.getByName("debug")
+        }
     }
     buildFeatures { buildConfig = true }
     compileOptions {

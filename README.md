@@ -1,6 +1,30 @@
-# FOGO
+# FOGO · 팀 Drive Atlas
 
-Pleos Connect에서 방문한 장소를 기록하고, 첫 도착에 받은 수집품을 지도판에 붙이는 Android Automotive 시연 앱입니다. 서울·강원·부산의 명소 9곳과 차고·공방·월간 티켓북을 담았습니다.
+**내 차가 다닌 곳만 안개가 걷히는 지도. 가족과 달린 곳이 스티커·자석·코스튬이 되고, 차를 바꿔도 지도는 이어집니다.**
+
+FOGO는 Pleos Connect(Android Automotive)용 차량 앱입니다. 주행한 길을 1km 블록으로만 기록해 안개 지도를 걷고, 명소에 처음 도착하면 탑승권과 수집품을 줍니다. 서울·강원·부산 명소 9곳, 지도판, 차고·공방, 월간 티켓북, 친구 지도판, QR 공유, 출퇴근 루틴, 차 생일(누적 1만 km)을 담았습니다.
+
+## 바로 실행하기 (심사용)
+
+| 항목 | 내용 |
+| --- | --- |
+| APK 위치 | [`apk/DriveAtlas_FOGO_release.apk`](apk/DriveAtlas_FOGO_release.apk) (release 빌드, 에뮬레이터 설치용 디버그 키 서명) |
+| 패키지 | `com.ssafy.fogo` · minSdk 28 · targetSdk 34 |
+| 테스트 환경 | Pleos Connect v2.1.0 AVD(x86_64, API 34, `Pleos_Connect_API_34`), Windows 11, JDK 21, Gradle 9.4.1, AGP 9.2.1 |
+| 차량 신호 | Virtual Console(`http://127.0.0.1:8088`) 기어·속도·와이퍼·문·주행거리, `adb emu geo fix`로 위치 |
+
+```powershell
+adb -s emulator-5580 install -r apk/DriveAtlas_FOGO_release.apk
+adb -s emulator-5580 shell am start -n com.ssafy.fogo/.MainActivity
+adb -s emulator-5580 forward tcp:8088 tcp:8088   # Virtual Console
+```
+
+1. 오프닝이 끝나면 `시작하기` → `동의하고 시작`(위치·알림 권한 허용) → `이 친구로 시작`.
+2. **빠른 둘러보기**: `아틀라스 → 도시 예시 재생`에서 명소를 고르고 `주행 재생`. 약 6초 뒤 도착 탑승권이 뜹니다.
+3. **실제 차량 신호로 주행**: 아래 "에뮬레이터에서 실제 SDK 시연"을 따릅니다. 출발 전 동승석 문을 열고 닫으면 `둘이서`, 뒷문이면 `가족과` 태그가 탑승권에 붙습니다. 비(와이퍼)·밤(전조등·시간) 태그도 차량 신호로 붙습니다.
+4. 친구(`친구` 탭), 출퇴근·차 생일(`차고`), 차 바꾸기(`차고 → 기록 이어받기(시연)`)는 에뮬레이터에서 바로 볼 수 있습니다. 시연용 기능은 에뮬레이터에서만 보이고 실차에서는 숨겨집니다.
+
+시연 영상의 흐름은 위 순서와 같습니다.
 
 ## 빌드와 설치
 
@@ -65,3 +89,16 @@ Virtual Console 페이지는 열리지만 차량 제어가 `503 emulator_inactiv
 
 - 도착 판정·음성 대체·로컬 데이터 회귀 테스트는 `assembleDebugAndroidTest`로 빌드합니다. 시연 APK와 테스트 APK를 같은 Pleos AVD에 설치하고 `adb -s emulator-5580 shell am instrument --user 10 -w com.ssafy.fogo.test/androidx.test.runner.AndroidJUnitRunner`를 실행합니다. 사용자 ID가 다른 AVD에서는 `adb shell am get-current-user`로 확인한 값을 사용합니다.
 - 세 도시 재생, 강원 자석, 공방, 티켓북, 차량 이전 UI는 `python scripts/test_demo.py --reset`으로 검증합니다. 이 명령은 지정한 에뮬레이터의 FOGO 앱 데이터를 초기화합니다.
+- 2026-11-15 기준: 계측 테스트 17건 통과, `test_demo.py` 7단계 통과(Pleos Connect v2.1.0 AVD).
+
+## 오픈소스·글꼴 출처
+
+| 이름 | 쓰는 곳 | 라이선스 |
+| --- | --- | --- |
+| [Galmuri](https://github.com/quiple/galmuri) (quiple) | 한글 픽셀 글꼴 | SIL OFL 1.1 · `app/src/main/assets/licenses/galmuri.txt` |
+| [Press Start 2P](https://fonts.google.com/specimen/Press+Start+2P) | 영문 픽셀 글꼴 | SIL OFL 1.1 · `app/src/main/assets/licenses/pressstart2p.txt` |
+| [Silkscreen](https://github.com/googlefonts/silkscreen) | 숫자·라벨 | SIL OFL 1.1 · `app/src/main/assets/licenses/silkscreen.txt` |
+| [ZXing core 3.5.3](https://github.com/zxing/zxing) | 탑승권·친구 코드 QR 생성 | Apache License 2.0 · `app/src/main/assets/licenses/zxing.txt` |
+| Pleos Playground SDK (Vehicle, FusedLocation, NaviHelper, TextToSpeech) | 차량 신호·위치·내비·음성 | Pleos 개발자 약관 |
+
+시연용 도착 음원(`res/raw/arrival_*.wav`)은 Windows 한국어 음성(Heami)으로 생성했고, 오프닝 영상(`res/raw/fogo_intro.mp4`)은 `scripts/intro/render_intro.py`로 직접 렌더했습니다.

@@ -58,7 +58,7 @@ class FogoApplication : Application() {
     private var realTags = TripTags()
     private var locationSession = 0
     private var pendingReaction: Arrival? = null
-    val replayAllowed get() = BuildConfig.DEBUG && (
+    val replayAllowed get() = BuildConfig.DEMO && (
         Build.HARDWARE.contains("ranchu", true) || Build.HARDWARE.contains("goldfish", true) ||
             Build.PRODUCT.contains("sdk", true) || Build.FINGERPRINT.contains("generic", true)
         )
